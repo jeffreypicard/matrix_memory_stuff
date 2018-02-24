@@ -7,7 +7,7 @@ struct matrix {
 	double **vals;
 };
 
-#define ACCESS(A, i, j) A->vals[i * A->n + j]
+#define ACCESS(A, i, j) ((A)->vals[i * (A)->n + j])
 
 struct matrix2 {
 	int n, m;
