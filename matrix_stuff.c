@@ -253,14 +253,4 @@ main(int argc, char **argv)
 	}
 
 	return 0;
-	fill_matrix(A);
-	B = transpose(A);
-
-	print_matrix(A);
-	print_matrix(B);
-
-	free_matrix(A);
-	free_matrix(B);
-
-	return 0;
 }
