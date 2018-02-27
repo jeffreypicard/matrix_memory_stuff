@@ -14,6 +14,11 @@ struct matrix2 {
 	double *vals;
 };
 
+struct vector {
+	int n;
+	double *vals;
+};
+
 struct matrix2 *
 alloc_matrix2(int n, int m)
 {
@@ -196,11 +201,59 @@ transpose_inplace(struct matrix *A)
 	}
 }
 
+struct matrix2 *
+multiply2(struct matrix2 *A, struct matrix2 *B)
+{
+	int i, j, k;
+	struct matrix2 *C;
+
+	if (A->n != B->m) return 0;
+
+	C = alloc_matrix2(A->m, B->n);
+	if (!C) return 0;
+
+	for (i = 0; i < C->n; i++) {
+		for (j = 0; j < C->m; j++) {
+			double res = 0;
+			for (k = 0; k < C->m; k++) {
+				res += ACCESS(A, i, k) * ACCESS(B, k, j);
+			}
+			ACCESS(C, i, j) = res;
+		}
+	}
+
+	return C;
+}
+
+struct matrix *
+multiply(struct matrix *A, struct matrix *B)
+{
+	int i, j, k;
+	struct matrix *C;
+
+	if (A->n != B->m) return 0;
+
+	C = alloc_matrix(A->m, B->n);
+	if (!C) return 0;
+
+	for (i = 0; i < C->n; i++) {
+		for (j = 0; j < C->m; j++) {
+			double res = 0;
+			for (k = 0; k < C->m; k++) {
+				res += A->vals[i][k] * B->vals[k][j];
+			}
+			C->vals[i][j] = res;
+		}
+	}
+
+	return C;
+}
+
 int
 main(int argc, char **argv)
 {
-	struct matrix *A, *B;
-	struct matrix2 *X, *Y;
+	struct matrix *A, *B, *C;
+	struct matrix2 *X, *Y, *Z;
 	int n, t;
 
 	if (argc < 2) {
@@ -218,34 +271,49 @@ main(int argc, char **argv)
 	if (t == 1) {
 
 		X = alloc_matrix2(n, n);
+		Y = alloc_matrix2(n, n);
 		fill_matrix2(X);
+		fill_matrix2(Y);
 
 		clock_t begin = clock();
 
 		//print_matrix2(X);
-		transpose_inplace2(X);
+		//transpose_inplace2(X);
 		//print_matrix2(X);
+		Z = multiply2(X, Y);
 
 		clock_t end = clock();
 		double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 
 		//print_matrix_addrs2(X);
 		//print_matrix2(X);
+		//print_matrix2(Y);
+		//print_matrix2(Z);
 		
 		printf("%f\n", time_spent);
 	} else if (t == 0) {
 
 		A = alloc_matrix(n, n);
+		B = alloc_matrix(n, n);
 		fill_matrix(A);
+		fill_matrix(B);
 
 		clock_t begin = clock();
 
 		//print_matrix(A);
-		transpose_inplace(A);
+		//transpose_inplace(A);
 		//print_matrix(A);
+		C = multiply(A, B);
 
 		clock_t end = clock();
 		double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+		/*
+		print_matrix(A);
+		puts("");
+		print_matrix(B);
+		puts("");
+		print_matrix(C);
+		*/
 
 		//print_matrix_addrs(A);
 		
