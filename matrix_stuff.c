@@ -225,6 +225,28 @@ multiply2(struct matrix2 *A, struct matrix2 *B)
 	return C;
 }
 
+struct matrix2 *
+multiply2_noalloc(struct matrix2 *A, struct matrix2 *B, struct matrix2 *C)
+{
+	int i, j, k;
+
+	if (A->n != B->m) return 0;
+	if (C->n != A->m || C->m != B->n) return 0;
+
+
+	for (i = 0; i < C->n; i++) {
+		for (j = 0; j < C->m; j++) {
+			double res = 0;
+			for (k = 0; k < C->m; k++) {
+				res += ACCESS(A, i, k) * ACCESS(B, k, j);
+			}
+			ACCESS(C, i, j) = res;
+		}
+	}
+
+	return C;
+}
+
 struct matrix *
 multiply(struct matrix *A, struct matrix *B)
 {
@@ -235,6 +257,27 @@ multiply(struct matrix *A, struct matrix *B)
 
 	C = alloc_matrix(A->m, B->n);
 	if (!C) return 0;
+
+	for (i = 0; i < C->n; i++) {
+		for (j = 0; j < C->m; j++) {
+			double res = 0;
+			for (k = 0; k < C->m; k++) {
+				res += A->vals[i][k] * B->vals[k][j];
+			}
+			C->vals[i][j] = res;
+		}
+	}
+
+	return C;
+}
+
+struct matrix *
+multiply_noalloc(struct matrix *A, struct matrix *B, struct matrix *C)
+{
+	int i, j, k;
+
+	if (A->n != B->m) return 0;
+	if (C->n != A->m || C->m != B->n) return 0;
 
 	for (i = 0; i < C->n; i++) {
 		for (j = 0; j < C->m; j++) {
@@ -272,6 +315,7 @@ main(int argc, char **argv)
 
 		X = alloc_matrix2(n, n);
 		Y = alloc_matrix2(n, n);
+		Z = alloc_matrix2(n, n);
 		fill_matrix2(X);
 		fill_matrix2(Y);
 
@@ -280,7 +324,8 @@ main(int argc, char **argv)
 		//print_matrix2(X);
 		//transpose_inplace2(X);
 		//print_matrix2(X);
-		Z = multiply2(X, Y);
+		//Z = multiply2(X, Y);
+		Z = multiply2_noalloc(X, Y, Z);
 
 		clock_t end = clock();
 		double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
@@ -295,6 +340,7 @@ main(int argc, char **argv)
 
 		A = alloc_matrix(n, n);
 		B = alloc_matrix(n, n);
+		C = alloc_matrix(n, n);
 		fill_matrix(A);
 		fill_matrix(B);
 
@@ -303,7 +349,8 @@ main(int argc, char **argv)
 		//print_matrix(A);
 		//transpose_inplace(A);
 		//print_matrix(A);
-		C = multiply(A, B);
+		//C = multiply(A, B);
+		C = multiply_noalloc(A, B, C);
 
 		clock_t end = clock();
 		double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
